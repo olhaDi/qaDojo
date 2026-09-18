@@ -7,7 +7,7 @@ test.describe('Registration', { tag: '@reg' }, () => {
         await page.getByTestId('nav-sign-up').click();
     });
 
-    test('User can login with valid credentials', async ({ page }) => {
+    test('User can register with valid credentials', async ({ page }) => {
         const user = generateUser();
         await page.getByTestId('auth-username').fill(user.userName);
         await page.getByTestId('auth-email').fill(user.email);
@@ -48,7 +48,7 @@ test.describe('Login', { tag: '@login' }, () => {
         await page.getByTestId('nav-sign-in').click();
     });
 
-    test('Login successful', async ({ page }) => {
+    test('User can login with valid credentials', async ({ page }) => {
         const existingUser = getExistingUser();
         await page.getByTestId('auth-email').fill(existingUser.email);
         await page.getByTestId('auth-password').fill(existingUser.password);
