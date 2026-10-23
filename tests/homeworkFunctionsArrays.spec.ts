@@ -1,5 +1,5 @@
 import { test } from '@playwright/test';
-import { authorize, generateArticle, navigateToProfile } from '../page-actions';
+import { authorize, generateArticle } from '../page-actions';
 import { getRandomString } from '../utils';
 import { checkYouFeedContainsArticle } from '../assertions';
 
@@ -23,15 +23,9 @@ test.describe(
         await generateArticle(page, title, description, body);
         articleTitles.push(title);
       }
-
-      //   await navigateToProfile(page);
       for (const title of articleTitles) {
         await checkYouFeedContainsArticle(page, title);
       }
-      //   const title = getRandomString(12);
-      //   await generateArticle(page, title);
-      //   await navigateToProfile(page, user.userName);
-      //   await checkYouFeedContainsArticle(page, title);
     });
   },
 );
