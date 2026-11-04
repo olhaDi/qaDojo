@@ -1,101 +1,73 @@
 import { test, expect } from '@playwright/test';
+import { ArticlesPage } from '../pages/ArticlesPage';
+import { AuthPage } from '../pages/AuthPage';
+import { generateUser, getRandomString } from '../utils';
+
+test.use({ storageState: { cookies: [], origins: [] } }); // these tests need a logged-out user
 
 test.describe('Registration', { tag: '@reg' }, () => {
+  let articlesPage: ArticlesPage;
+  let authPage: AuthPage;
+
   test.beforeEach(async ({ page }) => {
-    await page.goto('/articles');
-    await page.getByTestId('nav-sign-up').click();
+    articlesPage = new ArticlesPage(page);
+    authPage = new AuthPage(page);
+    await articlesPage.goto();
+    await articlesPage.openSignUp();
   });
 
-  test('User can register with valid credentials', async ({ page }) => {
+  test('User can register with valid credentials', async () => {
     const user = generateUser();
-    await page.getByTestId('auth-username').fill(user.userName);
-    await page.getByTestId('auth-email').fill(user.email);
-    await page.getByTestId('auth-password').fill(user.password);
-    await page.getByTestId('register-confirm-password').fill(user.password);
-    await page.getByTestId('register-terms').check();
-    await page.getByTestId('auth-submit').click();
-    await expect(page.getByTestId('nav-profile')).toContainText(user.userName);
+    await authPage.register(user);
+    await expect(authPage.header.profile).toContainText(user.userName);
   });
 
-  test('User with duplicated credentials is not registered', async ({
-    page,
-  }) => {
-    await page.getByTestId('auth-username').fill(process.env.TEST_USER_NAME!);
-    await page.getByTestId('auth-email').fill(process.env.TEST_USER_EMAIL!);
-    await page
-      .getByTestId('auth-password')
-      .fill(process.env.TEST_USER_PASSWORD!);
-    await page
-      .getByTestId('register-confirm-password')
-      .fill(process.env.TEST_USER_PASSWORD!);
-    await page.getByTestId('register-terms').check();
-    await page.getByTestId('auth-submit').click();
-    await expect(page.getByText('body email або username')).toBeVisible();
+  test('User with duplicated credentials is not registered', async () => {
+    await authPage.register({
+      userName: process.env.TEST_USER_NAME!,
+      email: process.env.TEST_USER_EMAIL!,
+      password: process.env.TEST_USER_PASSWORD!,
+    });
+    await expect(authPage.text('body email або username')).toBeVisible();
   });
 
-  test('User with invalid password is not registered', async ({ page }) => {
+  test('User with invalid password is not registered', async () => {
     const user = generateUser();
-    const invalidPassword = getRandomString(3);
-    await page.getByTestId('auth-username').fill(user.userName);
-    await page.getByTestId('auth-email').fill(user.email);
-    await page.getByTestId('auth-password').fill(invalidPassword);
-    await page.getByTestId('register-confirm-password').fill(invalidPassword);
-    await page.getByTestId('register-terms').check();
-    await page.getByTestId('auth-submit').click();
-    await expect(
-      page.getByTestId('error-messages').getByText('password'),
-    ).toBeVisible();
+    await authPage.register({ ...user, password: getRandomString(3) });
+    await expect(authPage.errorMessages.getByText('password')).toBeVisible();
   });
 });
 
 test.describe('Login', { tag: '@login' }, () => {
+  let articlesPage: ArticlesPage;
+  let authPage: AuthPage;
+
   test.beforeEach(async ({ page }) => {
-    await page.goto('/articles');
-    await page.getByTestId('nav-sign-in').click();
+    articlesPage = new ArticlesPage(page);
+    authPage = new AuthPage(page);
+    await articlesPage.goto();
+    await articlesPage.openSignIn();
   });
 
-  test('User can login with valid credentials', async ({ page }) => {
-    await page.getByTestId('auth-email').fill(process.env.TEST_USER_EMAIL!);
-    await page
-      .getByTestId('auth-password')
-      .fill(process.env.TEST_USER_PASSWORD!);
-    await page.getByTestId('auth-submit').click();
-    await expect(page.getByTestId('nav-profile')).toContainText(
+  test('User can login with valid credentials', async () => {
+    await authPage.login(
+      process.env.TEST_USER_EMAIL!,
+      process.env.TEST_USER_PASSWORD!,
+    );
+    await expect(authPage.header.profile).toContainText(
       process.env.TEST_USER_NAME!,
     );
   });
 
-  test('User with invalid password can not login', async ({ page }) => {
-    const invalidPassword = getRandomString(3);
-    await page.getByTestId('auth-email').fill(process.env.TEST_USER_EMAIL!);
-    await page.getByTestId('auth-password').fill(invalidPassword);
-    await page.getByTestId('auth-submit').click();
-    await expect(page.getByText('email or password неправильні')).toBeVisible();
-    await expect(page.getByTestId('nav-sign-in')).toBeVisible();
+  test('User with invalid password can not login', async () => {
+    await authPage.login(process.env.TEST_USER_EMAIL!, getRandomString(3));
+    await expect(authPage.text('email or password неправильні')).toBeVisible();
+    await expect(authPage.header.signIn).toBeVisible();
   });
 
-  test('Not existing user can not login', async ({ page }) => {
-    await page.getByTestId('auth-email').fill(`${getRandomString(6)}@test.ua`);
-    await page.getByTestId('auth-password').fill(getRandomString(6));
-    await page.getByTestId('auth-submit').click();
-    await expect(page.getByText('email or password неправильні')).toBeVisible();
-    await expect(page.getByTestId('nav-sign-in')).toBeVisible();
+  test('Not existing user can not login', async () => {
+    await authPage.login(`${getRandomString(6)}@test.ua`, getRandomString(6));
+    await expect(authPage.text('email or password неправильні')).toBeVisible();
+    await expect(authPage.header.signIn).toBeVisible();
   });
 });
-
-function getRandomString(length: number): string {
-  const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
-  return Array.from(
-    { length },
-    () => chars[Math.floor(Math.random() * chars.length)],
-  ).join('');
-}
-
-function generateUser() {
-  const userName = getRandomString(6);
-  return {
-    userName,
-    email: `${userName}${getRandomString(4)}@test.ua`,
-    password: getRandomString(6),
-  };
-}
