@@ -23,10 +23,15 @@ export default defineConfig({
   workers: process.env.CI ? 1 : undefined,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: 'html',
+  /* Logs in once and saves the session to playwright/.auth/user.json */
+  globalSetup: require.resolve('./global-setup.ts'),
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL to use in actions like `await page.goto('')`. */
     baseURL: process.env.BASE_URL,
+
+    /* Every test starts logged in with the session saved by global-setup.ts */
+    storageState: 'playwright/.auth/user.json',
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'retain-on-failure',
@@ -37,6 +42,24 @@ export default defineConfig({
   projects: [
     {
       name: 'chromium',
+      testIgnore: /zara-.*\.spec\.ts/,
+      use: { ...devices['Desktop Chrome'] },
+    },
+
+    /* Zara runs after the articles tests: headed browsers in parallel with
+       them make both sides time out. */
+    {
+      name: 'zara',
+      testMatch: /zara-(tests|cookies)\.spec\.ts/,
+      dependencies: ['chromium'],
+      use: { ...devices['Desktop Chrome'] },
+    },
+
+    /* Reads playwright/.auth/zara.json, which the 'zara' project writes. */
+    {
+      name: 'zara-auth',
+      testMatch: /zara-auth-test\.spec\.ts/,
+      dependencies: ['zara'],
       use: { ...devices['Desktop Chrome'] },
     },
 

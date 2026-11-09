@@ -1,30 +1,42 @@
-import { test } from '@playwright/test';
-import { authorize, generateArticle } from '../page-actions';
-import { getRandomString } from '../utils';
-import { checkYouFeedContainsArticle } from '../assertions';
+import { test, expect } from '@playwright/test';
+import { ArticlesPage } from '../pages/qaDojo/ArticlesPage';
+import { AuthPage } from '../pages/qaDojo/AuthPage';
+import { EditorPage } from '../pages/qaDojo/EditorPage';
+import { ProfilePage } from '../pages/qaDojo/ProfilePage';
+import { generateUser, getRandomString } from '../utils';
+
+test.use({ storageState: { cookies: [], origins: [] } }); // registers a new user, so start logged out
 
 test.describe(
   'Generated article is shown in Your feed',
   { tag: '@reg' },
   () => {
     test.beforeEach(async ({ page }) => {
-      await page.goto('/articles');
-      await page.getByTestId('nav-sign-up').click();
+      const articlesPage = new ArticlesPage(page);
+      await articlesPage.goto();
+      await articlesPage.openSignUp();
     });
 
     test('Created articles are shown in Your feed', async ({ page }) => {
-      await authorize(page);
+      const authPage = new AuthPage(page);
+      const editorPage = new EditorPage(page);
+      const profilePage = new ProfilePage(page);
+
+      await authPage.register(generateUser());
       const articleTitles: string[] = [];
 
       for (let i = 0; i < 10; i++) {
         const title = getRandomString(12);
-        const description = getRandomString(20);
-        const body = getRandomString(50);
-        await generateArticle(page, title, description, body);
+        await editorPage.createArticle(
+          title,
+          getRandomString(20),
+          getRandomString(50),
+        );
         articleTitles.push(title);
       }
       for (const title of articleTitles) {
-        await checkYouFeedContainsArticle(page, title);
+        await profilePage.open();
+        await expect(profilePage.articleHeading(title)).toBeVisible();
       }
     });
   },

@@ -2,33 +2,35 @@
 // seed: tests/seed.spec.ts
 
 import { test, expect } from '@playwright/test';
+import { ArticlesPage } from '../../pages/qaDojo/ArticlesPage';
 
 test.describe('Article search', () => {
   test('should-filter-articles-by-title-on-apply', async ({ page }) => {
-    const articleCards = page.getByRole('article');
-    const searchBox = page.getByPlaceholder('Search headlines…');
+    const articlesPage = new ArticlesPage(page);
 
     // 1. Open the articles page and note the counter.
-    await page.goto('http://104.168.59.50/articles');
-    await expect(page.getByText('9 articles', { exact: true })).toBeVisible();
-    await expect(articleCards).toHaveCount(9);
+    await articlesPage.goto();
+    // The total grows as other specs create articles, so read it instead of hardcoding.
+    // The counter briefly shows "0 articles" while the feed loads, so wait for a non-zero value.
+    await expect(articlesPage.counter).toHaveText(/^[1-9]\d* articles?$/);
+    const initialCounter = (await articlesPage.counter.textContent())!;
+    await expect(articlesPage.articleCards.first()).toBeVisible();
+    const initialCards = await articlesPage.articleCards.count();
 
     // 2. Type "sleep" into the search box without clicking anything else
-    await searchBox.fill('sleep');
-    await expect(searchBox).toHaveValue('sleep');
-    await expect(articleCards).toHaveCount(12333);
-    await expect(page.getByText('9 articles', { exact: true })).toBeVisible();
+    await articlesPage.typeSearch('sleep');
+    await expect(articlesPage.searchBox).toHaveValue('sleep');
+    await expect(articlesPage.articleCards).toHaveCount(initialCards);
+    await expect(articlesPage.counter).toHaveText(initialCounter);
 
     // 3. Click "Apply"
-    await page.getByRole('button', { name: 'Apply' }).click();
-    await expect(page.getByText('1 article', { exact: true })).toBeVisible();
-    await expect(articleCards).toHaveCount(1);
+    await articlesPage.applySearch();
+    await expect(articlesPage.counter).toHaveText('1 article');
+    await expect(articlesPage.articleCards).toHaveCount(1);
     await expect(
-      articleCards.getByRole('heading', {
-        name: 'Очікування у WebdriverIO без зайвих sleep',
-      }),
+      articlesPage.articleHeading('Очікування у WebdriverIO без зайвих sleep'),
     ).toBeVisible();
-    await expect(page).toHaveURL('http://104.168.59.50/articles');
-    await expect(searchBox).toHaveValue('sleep');
+    await expect(page).toHaveURL(/\/articles$/);
+    await expect(articlesPage.searchBox).toHaveValue('sleep');
   });
 });
