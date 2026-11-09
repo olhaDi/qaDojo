@@ -2,7 +2,7 @@
 // seed: tests/seed.spec.ts
 
 import { test, expect } from '@playwright/test';
-import { ArticlesPage } from '../../pages/ArticlesPage';
+import { ArticlesPage } from '../../pages/qaDojo/ArticlesPage';
 
 test.describe('Article search', () => {
   test('should-filter-articles-by-title-on-apply', async ({ page }) => {

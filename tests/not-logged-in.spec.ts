@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
-import { ArticlesPage } from '../pages/ArticlesPage';
-import { PortalPage } from '../pages/PortalPage';
+import { ArticlesPage } from '../pages/qaDojo/ArticlesPage';
+import { PortalPage } from '../pages/qaDojo/PortalPage';
 
 // Global storageState logs everyone in, so start this test as a guest
 test.use({ storageState: { cookies: [], origins: [] } });

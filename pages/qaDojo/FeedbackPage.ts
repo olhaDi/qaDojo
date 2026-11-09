@@ -1,5 +1,5 @@
 import { expect } from '@playwright/test';
-import { getUserDataForFeedback } from '../userDataForFeedback';
+import { getUserDataForFeedback } from '../../userDataForFeedback';
 import { FeedbackLocators } from './locators/FeedbackLocators';
 
 export type FeedbackData = ReturnType<typeof getUserDataForFeedback>;

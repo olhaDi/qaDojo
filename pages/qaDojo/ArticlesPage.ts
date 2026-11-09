@@ -1,5 +1,4 @@
 import { ArticlesLocators } from './locators/ArticlesLocators';
-
 export class ArticlesPage extends ArticlesLocators {
   async goto() {
     await this.page.goto('/articles');

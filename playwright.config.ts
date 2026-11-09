@@ -42,6 +42,24 @@ export default defineConfig({
   projects: [
     {
       name: 'chromium',
+      testIgnore: /zara-.*\.spec\.ts/,
+      use: { ...devices['Desktop Chrome'] },
+    },
+
+    /* Zara runs after the articles tests: headed browsers in parallel with
+       them make both sides time out. */
+    {
+      name: 'zara',
+      testMatch: /zara-(tests|cookies)\.spec\.ts/,
+      dependencies: ['chromium'],
+      use: { ...devices['Desktop Chrome'] },
+    },
+
+    /* Reads playwright/.auth/zara.json, which the 'zara' project writes. */
+    {
+      name: 'zara-auth',
+      testMatch: /zara-auth-test\.spec\.ts/,
+      dependencies: ['zara'],
       use: { ...devices['Desktop Chrome'] },
     },
 
