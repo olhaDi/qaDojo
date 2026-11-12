@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { ZaraHomePage } from '../pages/zara/ZaraHomePage';
+import { ZaraHomePage } from '../../pages/zara/ZaraHomePage';
 
 // Zara blocks headless Chromium ("Access Denied"), so run with a visible browser
 test.use({ headless: false });

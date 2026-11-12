@@ -1,5 +1,5 @@
 import { test } from '@playwright/test';
-import { ZaraHomePage } from '../pages/zara/ZaraHomePage';
+import { ZaraHomePage } from '../../pages/zara/ZaraHomePage';
 
 test.use({ headless: false });
 test.use({ storageState: 'playwright/.auth/zara.json' });

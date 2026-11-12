@@ -1,9 +1,9 @@
 import { test, expect } from '@playwright/test';
-import { ArticlesPage } from '../pages/qaDojo/ArticlesPage';
-import { AuthPage } from '../pages/qaDojo/AuthPage';
-import { EditorPage } from '../pages/qaDojo/EditorPage';
-import { ProfilePage } from '../pages/qaDojo/ProfilePage';
-import { generateUser, getRandomString } from '../utils';
+import { ArticlesPage } from '../../pages/qaDojo/ArticlesPage';
+import { AuthPage } from '../../pages/qaDojo/AuthPage';
+import { EditorPage } from '../../pages/qaDojo/EditorPage';
+import { ProfilePage } from '../../pages/qaDojo/ProfilePage';
+import { generateUser, getRandomString } from '../../utils';
 
 test.use({ storageState: { cookies: [], origins: [] } }); // registers a new user, so start logged out
 
