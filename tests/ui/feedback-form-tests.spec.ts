@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
-import { FeedbackPage } from '../pages/qaDojo/FeedbackPage';
-import { getUserDataForFeedback } from '../userDataForFeedback';
+import { FeedbackPage } from '../../pages/qaDojo/FeedbackPage';
+import { getUserDataForFeedback } from '../../userDataForFeedback';
 
 const scenarios = [
   {

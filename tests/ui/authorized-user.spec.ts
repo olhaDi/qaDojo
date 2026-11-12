@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { ArticlesPage } from '../pages/qaDojo/ArticlesPage';
+import { ArticlesPage } from '../../pages/qaDojo/ArticlesPage';
 
 // No login steps here: the session comes from global-setup.ts through
 // use.storageState in playwright.config.ts.

@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
-import { ArticlesPage } from '../pages/qaDojo/ArticlesPage';
-import { AuthPage } from '../pages/qaDojo/AuthPage';
-import { generateUser, getRandomString } from '../utils';
+import { ArticlesPage } from '../../pages/qaDojo/ArticlesPage';
+import { AuthPage } from '../../pages/qaDojo/AuthPage';
+import { generateUser, getRandomString } from '../../utils';
 
 test.use({ storageState: { cookies: [], origins: [] } }); // these tests need a logged-out user
 
