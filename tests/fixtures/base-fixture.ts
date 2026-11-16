@@ -1,4 +1,4 @@
-import { test as base, expect } from '@playwright/test';
+import { test as base, expect, type APIRequestContext } from '@playwright/test';
 import { faker } from '@faker-js/faker';
 import { UserController } from '../../controllers/UserController';
 
@@ -16,6 +16,7 @@ type MyFixtures = {
   token: string;
   /** Puts that same user's token into the browser; returns the user. */
   login: TestUser;
+  authorizedRequest: APIRequestContext;
 };
 
 const test = base.extend<MyFixtures>({
@@ -46,6 +47,18 @@ const test = base.extend<MyFixtures>({
   login: async ({ context, baseURL, user, token }, use) => {
     await context.setStorageState(createLocalStorageState(baseURL!, token));
     await use(user);
+  },
+
+  authorizedRequest: async ({ playwright, baseURL, token }, use) => {
+    const api = await playwright.request.newContext({
+      baseURL,
+      extraHTTPHeaders: { authorization: 'Token ' + token },
+    });
+    try {
+      await use(api);
+    } finally {
+      await api.dispose();
+    }
   },
 });
 export { test, expect };
